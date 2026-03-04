@@ -1,5 +1,9 @@
-const connectRedis = async () => {
+async function connectRedis() {
   console.log('⚠️  Redis disabled — using MongoDB only');
-};
+}
 
-const getRedis = () => null;
+function getRedis() {
+  return null;
+}
+
+module.exports = { connectRedis, getRedis };
