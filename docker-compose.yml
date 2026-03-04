@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: snip_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: urlshortener
+    ports:
+      - "27017:27017"
+
+  redis:
+    image: redis:7-alpine
+    container_name: snip_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: snip_server
+    restart: unless-stopped
+    depends_on:
+      - mongo
+      - redis
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      MONGO_URI: mongodb://mongo:27017/urlshortener
+      REDIS_URL: redis://redis:6379
+      BASE_URL: http://localhost
+      CLIENT_URL: http://localhost
+    ports:
+      - "5000:5000"
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: snip_client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+
+volumes:
+  mongo_data:
