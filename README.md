@@ -1,338 +1,231 @@
-# Snip — URL Shortener
+# 🔗 Snipify — URL Shortener
 
-> A production-ready full-stack URL shortener built with **Node.js**, **Express**, **MongoDB**, **Redis**, and **React**.
+A full-stack URL shortener built with **Node.js**, **Express**, **MongoDB**, and **React**. Deployed and live in production.
 
-![Stack](https://img.shields.io/badge/Node.js-20-green) ![Stack](https://img.shields.io/badge/React-18-blue) ![Stack](https://img.shields.io/badge/MongoDB-7-darkgreen) ![Stack](https://img.shields.io/badge/Redis-7-red)
-
----
-
-## Features
-
-- **Shorten any URL** — generates a unique 6-character code via `nanoid`
-- **Custom short codes** — choose your own alias (e.g. `/my-link`)
-- **Click tracking** — counts every redirect, stores referrer and user-agent
-- **Analytics** — per-link stats with daily click history bar chart
-- **Expiration dates** — links auto-deactivate after N days
-- **Redis caching** — fast redirects without hitting MongoDB every time
-- **Rate limiting** — protects the API from abuse
-- **Duplicate detection** — returns existing short URL for the same long URL
-- **MVC architecture** — clean, modular backend
-- **Docker support** — one command to run everything
+> 🌐 **Live Demo:** https://snipify-client.onrender.com
+> 🔌 **API:** https://snipify-server.onrender.com
 
 ---
 
-## Project Structure
+## 📊 Performance Stats
+
+Tested with [Pingdom Tools](https://tools.pingdom.com) on the live production deployment:
+
+| Metric | Result |
+|---|---|
+| ⚡ Performance Grade | **A (94 / 100)** |
+| 🕐 Load Time | **237 ms** |
+| 📦 Page Size | **72.0 KB** |
+| 🔁 HTTP Requests | **5** |
+
+---
+
+## ✨ Features
+
+- Shorten any valid http/https URL
+- Auto-deduplication — same URL always returns the same short code
+- Custom aliases (`snip.ly/my-link`)
+- Expiration dates for links
+- Click tracking with per-click history
+- Analytics dashboard with pagination
+- Rate limiting (global + per-endpoint)
+- Full error handling and input validation
+- Docker support — one command to run everything locally
+
+---
+
+## 🗂 Project Structure
 
 ```
 url-shortener/
 ├── server/
-│   ├── config/
-│   │   ├── db.js              # MongoDB connection
-│   │   └── redis.js           # Redis connection (optional)
 │   ├── controllers/
-│   │   └── urlController.js   # Business logic
-│   ├── middleware/
-│   │   ├── rateLimiter.js     # express-rate-limit setup
-│   │   └── errorHandler.js    # Global error + 404 handlers
+│   │   └── urlController.js         # CRUD + redirect logic
 │   ├── models/
-│   │   └── Url.js             # Mongoose schema
+│   │   └── Url.js                   # Mongoose schema
 │   ├── routes/
-│   │   └── urlRoutes.js       # Express router
-│   ├── tests/
-│   │   └── urlRoutes.test.js  # Jest + Supertest unit tests
-│   ├── server.js              # App entry point
-│   ├── jest.config.json
-│   ├── package.json
-│   └── .env.example
+│   │   └── urlRoutes.js             # API routes
+│   ├── middleware/
+│   │   ├── errorHandler.js          # Global error handler
+│   │   └── rateLimiter.js           # Rate limiting
+│   ├── config/
+│   │   ├── db.js                    # MongoDB connection
+│   │   └── redis.js                 # Redis config (disabled)
+│   ├── server.js                    # Entry point
+│   └── package.json
+│
 ├── client/
 │   ├── src/
-│   │   ├── components/
-│   │   │   ├── ShortenForm.jsx  # URL input + advanced options
-│   │   │   ├── UrlCard.jsx      # Individual link card + stats drawer
-│   │   │   └── UrlList.jsx      # Paginated link list
-│   │   ├── hooks/
-│   │   │   ├── useClipboard.js  # Copy-to-clipboard hook
-│   │   │   └── useUrls.js       # URL CRUD state hook
+│   │   ├── components/              # React components
 │   │   ├── utils/
-│   │   │   └── api.js           # Axios API wrapper
+│   │   │   └── api.js               # Axios API wrapper
 │   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── index.html
+│   │   └── main.jsx
 │   ├── vite.config.js
 │   └── package.json
-├── Dockerfile.server
-├── Dockerfile.client
+│
 ├── docker-compose.yml
-├── nginx.conf
-├── .gitignore
 └── README.md
 ```
 
 ---
 
-## Quick Start (Local Development)
+## 🚀 Quick Start (Local with Docker)
 
 ### Prerequisites
-- Node.js 18+
-- MongoDB (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
-- Redis (optional — app works without it)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
-### 1. Clone and install
-
+### Run everything with one command
 ```bash
-git clone https://github.com/YOUR_USERNAME/url-shortener.git
+git clone https://github.com/spoja-10/url-shortener.git
 cd url-shortener
-
-# Install all dependencies
-npm run install:all
-```
-
-### 2. Configure environment
-
-```bash
-cd server
-cp .env.example .env
-```
-
-Edit `server/.env`:
-
-```env
-PORT=5000
-NODE_ENV=development
-MONGO_URI=mongodb://localhost:27017/urlshortener
-REDIS_URL=redis://localhost:6379   # remove this line if you don't have Redis
-BASE_URL=http://localhost:5000
-CLIENT_URL=http://localhost:5173
-```
-
-### 3. Start the development servers
-
-Open **two terminals**:
-
-**Terminal 1 — Backend:**
-```bash
-npm run dev:server
-# Server running on http://localhost:5000
-```
-
-**Terminal 2 — Frontend:**
-```bash
-npm run dev:client
-# App running on http://localhost:5173
-```
-
-Open http://localhost:5173 in your browser.
-
----
-
-## Docker (Recommended for Production)
-
-Run everything with one command:
-
-```bash
 docker compose up --build
 ```
 
-This starts:
-- **MongoDB** on port 27017
-- **Redis** on port 6379
-- **Express API** on port 5000
-- **React (nginx)** on port 80
+| Service | URL |
+|---|---|
+| React frontend | http://localhost:3000 |
+| Express API | http://localhost:5000 |
+| MongoDB | localhost:27017 |
 
-Visit http://localhost
+---
 
-To stop:
+## 💻 Local Development (without Docker)
+
+### Backend
 ```bash
-docker compose down
+cd server
+cp .env.example .env    # fill in your MONGO_URI
+npm install
+npm run dev             # starts on http://localhost:5000
 ```
 
-To stop and delete all data:
+### Frontend
 ```bash
-docker compose down -v
+cd client
+npm install
+npm run dev             # starts on http://localhost:5173
 ```
 
 ---
 
-## API Reference
+## 🔌 API Reference
 
-Base URL: `http://localhost:5000`
+### `POST /api/urls` — Create short URL
 
-### Create short URL
-
-```http
-POST /api/urls
-Content-Type: application/json
-
+**Body:**
+```json
 {
   "originalUrl": "https://www.example.com/very/long/path",
-  "customCode": "my-link",   // optional
-  "expiresIn": 7             // optional, days (1-365)
+  "customCode": "my-link",
+  "expiresIn": 7
 }
 ```
 
-**Response 201:**
+**Response `201`:**
 ```json
 {
   "id": "...",
   "originalUrl": "https://www.example.com/very/long/path",
-  "shortCode": "abc123",
-  "shortUrl": "http://localhost:5000/abc123",
+  "shortCode": "mFIYnT",
+  "shortUrl": "https://snipify-server.onrender.com/mFIYnT",
   "clicks": 0,
-  "createdAt": "2025-01-01T00:00:00.000Z",
+  "createdAt": "2026-03-04T00:00:00.000Z",
   "expiresAt": null
 }
 ```
 
-### List all URLs
-
-```http
+### `GET /api/urls` — List all URLs
+```
 GET /api/urls?page=1&limit=10
 ```
 
-### Get URL stats
-
-```http
-GET /api/urls/:shortCode
+### `GET /api/urls/:shortCode` — Get stats
+```
+GET /api/urls/mFIYnT
 ```
 
-### Delete URL
-
-```http
-DELETE /api/urls/:shortCode
+### `DELETE /api/urls/:shortCode` — Delete
+```
+DELETE /api/urls/mFIYnT
 ```
 
-### Redirect
-
-```http
-GET /:shortCode
-→ 301 redirect to originalUrl
+### `GET /:shortCode` — Redirect
 ```
-
-### Health check
-
-```http
-GET /health
-→ { "status": "ok", "timestamp": "..." }
+GET /mFIYnT  →  301 redirect to original URL
 ```
 
 ---
 
-## Running Tests
+## ☁️ Deployment
 
-```bash
-cd server
-npm test
-```
+Deployed on **Render** free tier with **MongoDB Atlas** (free M0 cluster).
 
-Tests cover:
-- POST /api/urls — create, duplicate detection, validation, custom codes
-- GET /api/urls — pagination
-- GET /api/urls/:shortCode — stats, 404
-- DELETE /api/urls/:shortCode — deactivation, 404
+| Service | Platform | URL |
+|---|---|---|
+| React Frontend | Render Static Site | https://snipify-client.onrender.com |
+| Express API | Render Web Service | https://snipify-server.onrender.com |
+| MongoDB | MongoDB Atlas M0 | cloud.mongodb.com |
 
----
+### Deploy your own
+1. Fork this repo
+2. Create a [MongoDB Atlas](https://mongodb.com/atlas) free cluster
+3. Create a [Render](https://render.com) account
+4. Deploy `server/` as a Web Service with these env vars:
 
-## Deployment Guide
+| Key | Value |
+|---|---|
+| `NODE_ENV` | `production` |
+| `PORT` | `10000` |
+| `MONGO_URI` | your Atlas connection string |
+| `BASE_URL` | your Render server URL |
+| `CLIENT_URL` | your Render client URL |
 
-### Render (Free Tier)
+5. Deploy `client/` as a Static Site with:
 
-**Backend:**
-1. Create a new **Web Service** on [render.com](https://render.com)
-2. Root directory: `server`
-3. Build command: `npm install`
-4. Start command: `npm start`
-5. Add environment variables from `.env.example`
-6. Set `BASE_URL` to your Render URL (e.g. `https://snip-api.onrender.com`)
-
-**Frontend:**
-1. Create a new **Static Site** on Render
-2. Root directory: `client`
-3. Build command: `npm install && npm run build`
-4. Publish directory: `dist`
-5. Add env variable: `VITE_API_URL=https://snip-api.onrender.com`
-
-**MongoDB:** Use [MongoDB Atlas](https://www.mongodb.com/atlas) free tier. Copy the connection string into `MONGO_URI`.
-
-**Redis:** Use [Upstash](https://upstash.com) free tier. Copy the connection string into `REDIS_URL`.
-
-### Railway
-
-```bash
-# Install Railway CLI
-npm install -g @railway/cli
-
-railway login
-railway init
-railway up
-```
-
-Set environment variables in the Railway dashboard.
+| Key | Value |
+|---|---|
+| `VITE_API_URL` | your Render server URL |
 
 ---
 
-## System Design
+## 🏗 System Design
 
 ```
-Client (React)
-     │
-     │ HTTP/REST
-     ▼
-Express API (Node.js)
-     │                ┌─────────────┐
-     ├── GET /:code ──► Redis Cache  │ (cache hit: ~1ms)
-     │                └──────┬──────┘
-     │                       │ cache miss
-     │                ┌──────▼──────┐
-     └── all routes ──► MongoDB      │ (indexed shortCode lookup)
-                       └─────────────┘
+User → React (Vite, 72KB bundle)
+         │
+         ▼ HTTPS /api/*
+      Express API (Node.js)
+         │
+         ▼
+      MongoDB Atlas
+      (persistent storage)
 ```
 
-**Why Redis?**
-Redirects are the hot path — every click hits `GET /:shortCode`. Redis caches the `originalUrl` so MongoDB is only queried on cache miss. The click counter is updated asynchronously (fire-and-forget) to keep redirects fast.
-
-**Idempotency:**
-Submitting the same long URL twice returns the existing short URL (HTTP 200) rather than creating a duplicate. Enforced at the DB level with a unique index on `shortCode`.
+**Redirect flow:**
+1. `GET /:shortCode` hits Express
+2. MongoDB lookup by shortCode (indexed)
+3. Click recorded asynchronously
+4. 301 redirect sent to client
 
 **Rate limiting:**
-- General API: 100 requests per 15 minutes (GET exempt)
-- URL creation: 10 per minute per IP
+- Global: 100 req / 15 min per IP
+- URL creation: 20 req / 15 min per IP
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Runtime | Node.js 20 |
-| Framework | Express 4 |
-| Database | MongoDB 7 + Mongoose |
-| Cache | Redis 7 + ioredis |
-| Short codes | nanoid |
-| Frontend | React 18 + Vite |
-| HTTP client | Axios |
-| Rate limiting | express-rate-limit |
-| Tests | Jest + Supertest |
-| Containerisation | Docker + Docker Compose |
-| Reverse proxy | nginx |
+| Frontend | React 18, Vite, Axios |
+| Backend | Node.js, Express 4, nanoid |
+| Database | MongoDB 7, Mongoose |
+| Security | Helmet, CORS, express-rate-limit |
+| DevOps | Docker, Docker Compose, Render, GitHub |
 
 ---
 
-## Environment Variables
+## 📈 CV Summary
 
-| Variable | Default | Description |
-|---|---|---|
-| `PORT` | `5000` | Server port |
-| `NODE_ENV` | `development` | Environment |
-| `MONGO_URI` | — | MongoDB connection string |
-| `REDIS_URL` | — | Redis URL (optional) |
-| `BASE_URL` | `http://localhost:5000` | Used in short URL responses |
-| `CLIENT_URL` | `http://localhost:5173` | CORS origin |
-| `RATE_LIMIT_WINDOW_MS` | `900000` | Rate limit window (15 min) |
-| `RATE_LIMIT_MAX` | `100` | Max requests per window |
-
----
-
-## License
-
-MIT
+> *Full-stack URL shortener achieving a **94/100 Pingdom performance score** with a **237ms load time** and **72KB page size**. Built with React, Node.js, Express, and MongoDB Atlas. Features click analytics, custom aliases, rate limiting, and Docker containerisation. Deployed to production on Render with a live public URL.*
